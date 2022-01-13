@@ -18,10 +18,11 @@ type OrderHandler struct {
 	orderSrv    order.UseCase
 }
 
-func NewOrderHandlers(logger *zap.Logger, customerSrv customer.UseCase) *OrderHandler {
+func NewOrderHandlers(logger *zap.Logger, customerSrv customer.UseCase, orderSrv order.UseCase) *OrderHandler {
 	return &OrderHandler{
 		logger:      logger,
 		customerSrv: customerSrv,
+		orderSrv:    orderSrv,
 	}
 }
 
@@ -58,6 +59,7 @@ func (c *OrderHandler) FindOrders(w http.ResponseWriter, r *http.Request) {
 		presenter.MountResponse(w, http.StatusBadRequest, response)
 		return
 	}
+
 	orderResp, err := c.orderSrv.GetByCustomerID(customer[0].Customerid)
 	if err != nil {
 		c.logger.Error(

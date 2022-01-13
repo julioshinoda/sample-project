@@ -5,7 +5,9 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"log"
+	"os"
 
+	pb "github.com/julioshinoda/sample-project/pb/proto"
 	"github.com/julioshinoda/sample-project/util"
 	grpc "google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -22,7 +24,7 @@ func NewConnector() *grpc.ClientConn {
 		RootCAs:            roots,
 	}
 	transportOption := grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig))
-	conn, err := grpc.Dial("stage.nekom.com:443", transportOption)
+	conn, err := grpc.Dial(os.Getenv("SERVER_CLIENT"), transportOption)
 	if err != nil {
 		log.Fatalf("fail to dial: %v", err)
 	}
@@ -33,10 +35,14 @@ func NewCustomerConnectorClient(cc *grpc.ClientConn) util.CustomerConnectorClien
 	return util.NewCustomerConnectorClient(cc)
 }
 
+//
+func NewOrdersConnectorClient(cc *grpc.ClientConn) pb.OrdersConnectorClient {
+	return pb.NewOrdersConnectorClient(cc)
+}
 func GetMetadata(ctx context.Context) context.Context {
 	return metadata.NewOutgoingContext(
 		ctx,
-		metadata.Pairs("token", "storer@2020!", "clientuuid", "fdfd497828effdfda2b049a27849a2d4"),
+		metadata.Pairs("token", os.Getenv("SERVER_TOKEN"), "clientuuid", os.Getenv("SERVER_CLIENT_UUID")),
 	)
 
 }

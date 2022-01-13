@@ -11,26 +11,21 @@ import (
 	"github.com/go-chi/cors"
 	"github.com/julioshinoda/sample-project/internal/api/handler"
 	"github.com/julioshinoda/sample-project/internal/api/usecase/customer"
+	"github.com/julioshinoda/sample-project/internal/api/usecase/order"
 	"github.com/julioshinoda/sample-project/pkg/logger"
 	"github.com/julioshinoda/sample-project/pkg/serverconnector"
 	"go.uber.org/fx"
 )
 
 func main() {
-	// ctx, cancel := context.WithCancel(context.Background())
-	// kill := make(chan os.Signal, 1)
-	// signal.Notify(kill)
-
-	// go func() {
-	// 	<-kill
-	// 	cancel()
-	// }()
 
 	fx.New(
 		fx.Provide(logger.NewZapLogger),
 		fx.Provide(serverconnector.NewConnector),
 		fx.Provide(serverconnector.NewCustomerConnectorClient),
 		fx.Provide(customer.NewService),
+		fx.Provide(serverconnector.NewOrdersConnectorClient),
+		fx.Provide(order.NewService),
 		fx.Provide(handler.NewOrderHandlers),
 		fx.Invoke(runHttpServer),
 	).Run()
